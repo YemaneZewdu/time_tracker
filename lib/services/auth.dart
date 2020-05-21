@@ -8,32 +8,42 @@ class User {
   User({@required this.uid});
 }
 
-abstract class AuthBase{
+abstract class AuthBase {
+  Stream<User> get onAuthStateChange;
 
   Future<User> currentUser();
-  Future<User> signInAnonymously();
-  Future<void> signOut();
 
+  Future<User> signInAnonymously();
+
+  Future<void> signOut();
 }
 
 // This class is completely decoupled from Firebase and the project only knows this Auth class
 // this class is used to handle the necessary steps for sign in/out
 // if we want to remove firebase and use another service or a breaking change occurs,
 // then we can just update this class
-class Auth implements AuthBase{
+class Auth implements AuthBase {
   final _firebaseAuth = FirebaseAuth.instance;
 
   // converts Fireabse user obj to User class obj
-  User _userFromFirebase(FirebaseUser user){
-    if (user == null){
+  User _userFromFirebase(FirebaseUser user) {
+    if (user == null) {
       return null;
     }
     return User(uid: user.uid);
   }
 
+  // getter variable that tells us every time the user has changed
+  // when the app starts, firebase will check for the current user and also when
+  // manually sign in and out
+  @override
+  Stream<User> get onAuthStateChange {
+    return _firebaseAuth.onAuthStateChanged.map(_userFromFirebase);
+  }
+
   @override
   Future<User> currentUser() async {
-    final user =  await _firebaseAuth.currentUser();
+    final user = await _firebaseAuth.currentUser();
     return _userFromFirebase(user);
   }
 
@@ -48,4 +58,3 @@ class Auth implements AuthBase{
     await _firebaseAuth.signOut();
   }
 }
-

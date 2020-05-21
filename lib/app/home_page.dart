@@ -3,11 +3,11 @@ import 'package:timetracker/services/auth.dart';
 
 class HomePage extends StatelessWidget {
 
-  // used to notify the landing page that the user has logged out
-  final VoidCallback onSignout;
+  // used to notify the landing page that the user has logged out but moved to using AuthStateChanged
+ // final VoidCallback onSignout;
   final AuthBase auth;
 
-   HomePage({@required this.onSignout, @required this.auth });
+   HomePage({@required this.auth });
   // lets the user sign out
   Future<void> _signOut() async {
     try {
@@ -15,7 +15,9 @@ class HomePage extends StatelessWidget {
    // await FirebaseAuth.instance.signOut();
       await auth.signOut();
       // this is used to tell the landing page that the user has logged out
-      onSignout();
+      // commented out because when the user signs in, a new event is push to onAuthStateChanged Stream
+      // and the streamBuilder will be called
+     // onSignout();
     } catch (e){
       print("Sign out! " + e.toString());
     }

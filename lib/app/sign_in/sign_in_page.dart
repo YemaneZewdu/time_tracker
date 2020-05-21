@@ -5,21 +5,24 @@ import 'package:timetracker/services/auth.dart';
 
 class SignInPage extends StatelessWidget {
 
-  // custom call back
-  final Function(User) onSignIn;
+  // custom call back but moved to using AuthStateChanged
+  //final Function(User) onSignIn;
   final AuthBase auth;
-   SignInPage({this.onSignIn, @required this.auth});
+   SignInPage({@required this.auth});
 
   // lets the user sign in anonymously
   Future<void> _signInAnonymously() async {
     try {
+
+      await auth.signInAnonymously();
       // old method
      // final authResult = await FirebaseAuth.instance.signInAnonymously();
       // this method uses a dependency injection of auth class
-      User user = await auth.signInAnonymously();
-      // this informs the landing page that there is a new user
-      // by a callback
-      onSignIn(user);
+      //User user = await auth.signInAnonymously();
+      // this informs the landing page that there is a new user by a callback
+      // commented out because when the user signs in, a new event is push to onAuthStateChanged Stream
+      // and the streamBuilder will be called
+     // onSignIn(user);
     } catch (e){
       print("Sign In Anonymously Error! " + e.toString());
     }
