@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:timetracker/app/sign_in/sign_in_button.dart';
 import 'package:timetracker/app/sign_in/social_sign_in_button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:timetracker/services/auth.dart';
 
 class SignInPage extends StatelessWidget {
+
+  // custom call back
+  final Function(User) onSignIn;
+  final AuthBase auth;
+   SignInPage({this.onSignIn, @required this.auth});
 
   // lets the user sign in anonymously
   Future<void> _signInAnonymously() async {
     try {
-      final authResult = await FirebaseAuth.instance.signInAnonymously();
-      print('${authResult.user.uid}');
+      // old method
+     // final authResult = await FirebaseAuth.instance.signInAnonymously();
+      // this method uses a dependency injection of auth class
+      User user = await auth.signInAnonymously();
+      // this informs the landing page that there is a new user
+      // by a callback
+      onSignIn(user);
     } catch (e){
-
+      print("Sign In Anonymously Error! " + e.toString());
     }
   }
 

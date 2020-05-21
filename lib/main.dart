@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'app/sign_in/sign_in_page.dart';
+import 'app/landing_page.dart';
+import 'services/auth.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,7 +23,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: SignInPage(),
+      home: LandingPage(
+        auth: Auth(),
+      ),
     );
   }
 }
