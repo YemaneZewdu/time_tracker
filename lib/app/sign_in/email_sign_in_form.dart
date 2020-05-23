@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timetracker/app/sign_in/validators.dart';
 import 'package:timetracker/common_widgets/form_submit_button.dart';
+import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
 
 // used for customizing the text in the sign in button
@@ -26,12 +27,15 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   final FocusNode _passwordFocusNode = FocusNode();
 
   String get _email => _emailController.text;
+
   String get _password => _passwordController.text;
+
   // assigning a default value
   EmailSIgnInFormType _formType = EmailSIgnInFormType.signIn;
 
   // this variable is used for solving the onError in the text fields
   bool _submitted = false;
+
   // this is used for not letting the user submit a form multiple times
   // before the already submitted form has not been processed
   // favorable for slow network
@@ -54,10 +58,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       // if successful, close the screen
       Navigator.of(context).pop();
     } catch (e) {
-      print(e.toString());
+      PlatformAlertDialog(
+        title: 'Sign in failed',
+        content: e.toString(),
+        defaultActionText: 'OK',
+      ).show(context);
     }
     // this code is accessed both when the form was successful or unsuccessful
-    finally{
+     finally {
       setState(() {
         _isLoading = false;
       });
@@ -83,7 +91,8 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     // checking if there is an error on the email text field
     // so that it won't change the focus mode if there is one
     final newFocus = widget.emailValidator.isValid(_email)
-    ? _passwordFocusNode : _emailFocusNode;
+        ? _passwordFocusNode
+        : _emailFocusNode;
     FocusScope.of(context).requestFocus(newFocus);
   }
 
@@ -103,7 +112,8 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     // only allowing active submit button when both fields have value and
     // when not in loading state
     bool submitEnabled = widget.emailValidator.isValid(_email) &&
-        widget.passwordValidator.isValid(_password) && !_isLoading;
+        widget.passwordValidator.isValid(_password) &&
+        !_isLoading;
 
     return [
       _buildEmailTextField(),
@@ -118,14 +128,15 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       FlatButton(
         child: Text(secondaryText),
         // users won't be able to toggle the form in a loading state
-        onPressed: !_isLoading ? _toggleFormType: null,
+        onPressed: !_isLoading ? _toggleFormType : null,
       )
     ];
   }
 
   TextField _buildEmailTextField() {
     // if the form is submitted and if the field has an error
-    bool showErrorText = _submitted && !widget.emailValidator.isValid(_email);;
+    bool showErrorText = _submitted && !widget.emailValidator.isValid(_email);
+    ;
     return TextField(
       controller: _emailController,
       decoration: InputDecoration(
@@ -149,7 +160,8 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   TextField _buildPasswordTextField() {
     // if the form is submitted and if the field has an error
-    bool showErrorText = _submitted && !widget.passwordValidator.isValid(_password);
+    bool showErrorText =
+        _submitted && !widget.passwordValidator.isValid(_password);
     return TextField(
       controller: _passwordController,
       decoration: InputDecoration(
