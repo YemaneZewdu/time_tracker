@@ -1,35 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/email_sign_in_page.dart';
 import 'package:timetracker/app/sign_in/sign_in_button.dart';
 import 'package:timetracker/app/sign_in/social_sign_in_button.dart';
 import 'package:timetracker/services/auth.dart';
 
-class SignInPage extends StatelessWidget {
-  // custom call back but moved to using AuthStateChanged
-  //final Function(User) onSignIn;
-  final AuthBase auth;
 
-  SignInPage({@required this.auth});
+class SignInPage extends StatelessWidget {
+
 
   // lets the user sign in anonymously
-  Future<void> _signInAnonymously() async {
+  Future<void> _signInAnonymously(BuildContext context) async {
     try {
+      final auth = Provider.of<AuthBase>(context,listen: false);
       await auth.signInAnonymously();
-      // old method
-      // final authResult = await FirebaseAuth.instance.signInAnonymously();
-      // this method uses a dependency injection of auth class
-      //User user = await auth.signInAnonymously();
-      // this informs the landing page that there is a new user by a callback
-      // commented out because when the user signs in, a new event is push to onAuthStateChanged Stream
-      // and the streamBuilder will be called
-      // onSignIn(user);
+
     } catch (e) {
       print("Sign In Anonymously Error! " + e.toString());
     }
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
+      final auth = Provider.of<AuthBase>(context,listen: false);
       await auth.signInWithGoogle();
     } catch (e) {
       print("Sign In With Google Error! " + e.toString());
@@ -41,7 +34,7 @@ class SignInPage extends StatelessWidget {
       MaterialPageRoute<void>(
         // makes the page slide in and out from the bottom on iOS
         fullscreenDialog: true,
-        builder: (context) => EmailSignInPage(auth: auth),
+        builder: (context) => EmailSignInPage(),
       ),
     );
   }
@@ -80,7 +73,7 @@ class SignInPage extends StatelessWidget {
               text: 'Sign in with Google',
               textColor: Colors.black87,
               color: Colors.white,
-              onPressed: _signInWithGoogle,
+              onPressed: ()=> _signInWithGoogle(context),
             ),
             SizedBox(height: 8.0),
             SocialSignInButton(
@@ -108,7 +101,7 @@ class SignInPage extends StatelessWidget {
               text: 'Go anonymous',
               textColor: Colors.black,
               color: Colors.lime[300],
-              onPressed: _signInAnonymously,
+              onPressed:()=> _signInAnonymously(context),
             ),
           ],
         ),

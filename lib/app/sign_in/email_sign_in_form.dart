@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/validators.dart';
 import 'package:timetracker/common_widgets/form_submit_button.dart';
 import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
@@ -10,9 +11,6 @@ enum EmailSIgnInFormType { signIn, register }
 
 // EmailAndPasswordValidators is a mixin to this class
 class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidators {
-  final AuthBase auth;
-
-  EmailSignInForm({this.auth});
 
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
@@ -50,10 +48,11 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       _isLoading = true;
     });
     try {
+      final auth = Provider.of<AuthBase>(context,listen: false);
       if (_formType == EmailSIgnInFormType.signIn) {
-        await widget.auth.signInWithEmailAndPassword(_email, _password);
+        await auth.signInWithEmailAndPassword(_email, _password);
       } else {
-        await widget.auth.createUserWithEmailAndPassword(_email, _password);
+        await auth.createUserWithEmailAndPassword(_email, _password);
       }
       // if successful, close the screen
       Navigator.of(context).pop();

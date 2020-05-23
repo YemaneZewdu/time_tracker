@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
 
 class HomePage extends StatelessWidget {
 
-  // used to notify the landing page that the user has logged out but moved to using AuthStateChanged
- // final VoidCallback onSignout;
-  final AuthBase auth;
 
-   HomePage({@required this.auth });
   // lets the user sign out
-  Future<void> _signOut() async {
+  Future<void> _signOut(BuildContext context) async {
     try {
       // old version
    // await FirebaseAuth.instance.signOut();
+      final auth = Provider.of<AuthBase>(context,listen: false);
       await auth.signOut();
       // this is used to tell the landing page that the user has logged out
       // commented out because when the user signs in, a new event is push to onAuthStateChanged Stream
@@ -35,7 +33,7 @@ class HomePage extends StatelessWidget {
     ).show(context);
     // if the return value is true, then sign out the user
     if (didRequestSignOut == true) {
-      _signOut();
+      _signOut(context);
     }
   }
 
