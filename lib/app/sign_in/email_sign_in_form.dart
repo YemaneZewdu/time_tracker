@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/validators.dart';
 import 'package:timetracker/common_widgets/form_submit_button.dart';
-import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
+import 'package:timetracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
 
 // used for customizing the text in the sign in button
@@ -39,6 +40,16 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   // favorable for slow network
   bool _isLoading = false;
 
+  // called when widgets are removed from the widget tree
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
   // this method gets the email and password from the form and signs in the user
   // or creates an account
   void _submit() async {
@@ -56,11 +67,10 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       }
       // if successful, close the screen
       Navigator.of(context).pop();
-    } catch (e) {
-      PlatformAlertDialog(
+    } on PlatformException catch (e) {
+      PlatformExceptionAlertDialog(
         title: 'Sign in failed',
-        content: e.toString(),
-        defaultActionText: 'OK',
+        exception: e,
       ).show(context);
     }
     // this code is accessed both when the form was successful or unsuccessful
