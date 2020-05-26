@@ -6,18 +6,23 @@ import 'package:timetracker/app/sign_in/validators.dart';
 import 'package:timetracker/common_widgets/form_submit_button.dart';
 import 'package:timetracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
+import 'package:timetracker/app/sign_in/email_sign_in_model.dart';
 
 // used for customizing the text in the sign in button
-enum EmailSIgnInFormType { signIn, register }
+//enum EmailSignInFormType { signIn, register }
 
+// this class was an old model before moving to using BLoC
 // EmailAndPasswordValidators is a mixin to this class
-class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidators {
-
+// this class is responsible for building the layout, handling focus and text input
+// showing errors and navigating back on success,
+// updates the model and signs in or registers the user using Auth,
+// holds all the state the form needs, the verification logic, and the computed variables
+class EmailSignInFormStateful extends StatefulWidget with EmailAndPasswordValidators {
   @override
-  _EmailSignInFormState createState() => _EmailSignInFormState();
+  _EmailSignInFormStatefulState createState() => _EmailSignInFormStatefulState();
 }
 
-class _EmailSignInFormState extends State<EmailSignInForm> {
+class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -30,7 +35,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   String get _password => _passwordController.text;
 
   // assigning a default value
-  EmailSIgnInFormType _formType = EmailSIgnInFormType.signIn;
+  EmailSignInFormType _formType = EmailSignInFormType.signIn;
 
   // this variable is used for solving the onError in the text fields
   bool _submitted = false;
@@ -52,15 +57,15 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   // this method gets the email and password from the form and signs in the user
   // or creates an account
-  void _submit() async {
+ Future<void> _submit() async {
     setState(() {
       // once set to true, we can check if there are errors on the text fields
       _submitted = true;
       _isLoading = true;
     });
     try {
-      final auth = Provider.of<AuthBase>(context,listen: false);
-      if (_formType == EmailSIgnInFormType.signIn) {
+      final auth = Provider.of<AuthBase>(context, listen: false);
+      if (_formType == EmailSignInFormType.signIn) {
         await auth.signInWithEmailAndPassword(_email, _password);
       } else {
         await auth.createUserWithEmailAndPassword(_email, _password);
@@ -87,9 +92,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       // setting it to false to not show the error text when the user
       // toggles the form from sign in to create an account form
       _submitted = false;
-      _formType = _formType == EmailSIgnInFormType.signIn
-          ? EmailSIgnInFormType.register
-          : EmailSIgnInFormType.signIn;
+      _formType = _formType == EmailSignInFormType.signIn
+          ? EmailSignInFormType.register
+          : EmailSignInFormType.signIn;
     });
     _emailController.clear();
     _passwordController.clear();
@@ -112,10 +117,10 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   }
 
   List<Widget> _buildChildren() {
-    final primaryText = _formType == EmailSIgnInFormType.signIn
+    final primaryText = _formType == EmailSignInFormType.signIn
         ? 'Sign in'
         : 'Create an account';
-    final secondaryText = _formType == EmailSIgnInFormType.signIn
+    final secondaryText = _formType == EmailSignInFormType.signIn
         ? 'Register here'
         : 'Log in here';
     // only allowing active submit button when both fields have value and
@@ -145,7 +150,6 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   TextField _buildEmailTextField() {
     // if the form is submitted and if the field has an error
     bool showErrorText = _submitted && !widget.emailValidator.isValid(_email);
-    ;
     return TextField(
       controller: _emailController,
       decoration: InputDecoration(

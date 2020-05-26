@@ -4,6 +4,8 @@ import 'package:timetracker/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'home_page.dart';
 
+// responds to changes made in the auth state
+// by the stream
 class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class LandingPage extends StatelessWidget {
           if (user == null) {
             // both _updateUser and onSignIn have one parameter of type FirebaseUser
             // so we can assign the call back like this instead of '() =>'
-            return SignInPage();
+            return SignInPage.create(context);
           }
           return HomePage();
         } else {
