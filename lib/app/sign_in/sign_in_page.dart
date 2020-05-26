@@ -2,28 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/email_sign_in_page.dart';
-import 'package:timetracker/app/sign_in/sign_in_bloc.dart';
+import 'package:timetracker/app/sign_in/sign_in_manager.dart';
 import 'package:timetracker/app/sign_in/sign_in_button.dart';
 import 'package:timetracker/app/sign_in/social_sign_in_button.dart';
 import 'package:timetracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
 
 class SignInPage extends StatelessWidget {
-  final SignInBloc bloc;
+  final SignInManager manager;
+  final bool isLoading;
 
-  SignInPage({@required this.bloc});
+  SignInPage({@required this.manager, @required this.isLoading});
 
   static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context);
-    return Provider<SignInBloc>(
-      // the _ is just a placeholder
-      create: (_) => SignInBloc(auth: auth),
-      // removing it from the widget tree when the screen is closed
-      dispose: (context, bloc)=>bloc.dispose(),
-      // Consumer is like a glue that holds Provider and widget
-      child: Consumer<SignInBloc>(
-        builder: (context, bloc, _) => SignInPage(
-          bloc: bloc,
+
+    return ChangeNotifierProvider<ValueNotifier<bool>>(
+      create: (_) => ValueNotifier<bool>(false),
+      child: Consumer<ValueNotifier<bool>>(
+        builder: (_, isLoading, __) => Provider<SignInManager>(
+          // the _ is just a placeholder
+          create: (_) => SignInManager(auth: auth, isLoading: isLoading),
+          // removing it from the widget tree when the screen is closed
+          //   dispose: (context, bloc)=>bloc.dispose(),
+          // Consumer is like a glue that holds Provider and widget
+          // and lets widgets rebuild themselves when a value is changed
+          // registers for updates
+          child: Consumer<SignInManager>(
+            builder: (context, manager, _) => SignInPage(
+              manager: manager,
+              // .value lets us extract the boolean value
+              isLoading: isLoading.value,
+            ),
+          ),
         ),
       ),
     );
@@ -47,7 +58,7 @@ class SignInPage extends StatelessWidget {
       // when the button is tapped set _isloading to true
       // setState(() => _isLoading = true); old method
       //final auth = Provider.of<AuthBase>(context, listen: false);
-      await bloc.signInAnonymously();
+      await manager.signInAnonymously();
     } catch (e) {
       _showSignInError(context, e);
 //    } finally {
@@ -65,7 +76,7 @@ class SignInPage extends StatelessWidget {
       //setState(() => _isLoading = true);
 
       // final auth = Provider.of<AuthBase>(context, listen: false);
-      await bloc.signInWithGoogle();
+      await manager.signInWithGoogle();
     } on PlatformException catch (e) {
       // if the user canceled the sign in request from the dialog box
       // asking if they want to sign in with Google account,
@@ -92,27 +103,19 @@ class SignInPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // creating a streamBuilder to read the loading stream from the BLoC
-
+    //final isLoading = Provider.of<ValueNotifier<bool>>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Time Tracker'),
         elevation: 2.0,
       ),
-      body: StreamBuilder<bool>(
-        stream: bloc.isLoadingStream,
-        // when we show this page, we aren't in a loading state so we pass false
-        initialData: false,
-        builder: (context, snapshot) {
-          return _buildContent(context, snapshot.data);
-        },
-      ),
+      body: _buildContent(context),
       backgroundColor: Colors.grey[200],
     );
   }
 
   // used for showing a 'sign in' text or a CircularProgressIndicator
-  Widget _buildHeader(bool isLoading) {
+  Widget _buildHeader() {
     if (isLoading) {
       return Center(
         child: CircularProgressIndicator(),
@@ -128,7 +131,7 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, bool isLoading) {
+  Widget _buildContent(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
         padding:
@@ -139,7 +142,7 @@ class SignInPage extends StatelessWidget {
           children: <Widget>[
             SizedBox(
               height: 50.0,
-              child: _buildHeader(isLoading),
+              child: _buildHeader(),
             ),
             SizedBox(height: 48.0),
             SocialSignInButton(
