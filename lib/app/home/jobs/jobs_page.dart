@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:timetracker/app/home/jobs/edit_job_page.dart';
+import 'package:timetracker/app/home/jobs/job_list_tile.dart';
 import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
-import 'package:timetracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
 import 'package:timetracker/services/database.dart';
 
-import 'models/job.dart';
+import '../models/job.dart';
 
 class JobsPage extends StatelessWidget {
   // lets the user sign out
@@ -40,19 +40,19 @@ class JobsPage extends StatelessWidget {
     }
   }
 
-  Future<void> _createJob(BuildContext context) async {
-    try {
-      final database = Provider.of<Database>(context);
-      await database.createJob(
-        Job(name: "Exercise", ratePerHour: 10),
-      );
-    } on PlatformException catch (e) {
-      PlatformExceptionAlertDialog(
-        title: "Operation Failed",
-        exception: e,
-      ).show(context);
-    }
-  }
+//  Future<void> _createJob(BuildContext context) async {
+//    try {
+//      final database = Provider.of<Database>(context);
+//      await database.createJob(
+//        Job(name: "Exercise", ratePerHour: 10),
+//      );
+//    } on PlatformException catch (e) {
+//      PlatformExceptionAlertDialog(
+//        title: "Operation Failed",
+//        exception: e,
+//      ).show(context);
+//    }
+//  }
 
   Widget _buildContents(BuildContext context) {
     final database = Provider.of<Database>(context);
@@ -61,7 +61,12 @@ class JobsPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final jobs = snapshot.data;
-          final children = jobs.map((job) => Text(job.name)).toList();
+          final children = jobs
+              .map((job) => JobListTile(
+                    job: job,
+                    onTap: () => EditJobPage.show(context, job: job,),
+                  ))
+              .toList();
           return ListView(children: children);
         }
         if (snapshot.hasError) {
@@ -92,7 +97,7 @@ class JobsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => _createJob(context),
+        onPressed: () => EditJobPage.show(context),
       ),
       body: _buildContents(context),
     );

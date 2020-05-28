@@ -3,7 +3,7 @@ import 'package:timetracker/app/sign_in/sign_in_page.dart';
 import 'package:timetracker/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:timetracker/services/database.dart';
-import 'home/jobs_page.dart';
+import 'home/jobs/jobs_page.dart';
 
 // responds to changes made in the auth state
 // by the stream
