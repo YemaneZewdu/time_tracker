@@ -9,10 +9,12 @@ Time Tracker Flutter app utilizing Could Firestore which is desgined to track us
 - [x] Google, Email, and Anonymous Sign in
 - [x] Stream and StreamBuilder
 - [x] Platform-Aware Dialogs
-- [x] State Managment with BLoC
+- [x] State Managment with BLoC and Provider
 - [x] Cupertino Bottom nav and Cupertino Page Routes
 - [x] Date & Time Pickers
+- [x] Forms, Input handling and Validation
 - [x] Swipe to dismiss 
+- [x] ListViews and multiple UI states
 
 ## App Walkthrough GIF
 
